@@ -81,12 +81,12 @@ grad_stepper = q.optim.Adam(own_net.parameters(), lr=0.01)  # Net.parameters() ~
 for epoch in range(2000):
     grad_stepper.zero_grad()
 
-    y_pred = own_net.forward(x_train)  # считаем предсказания по тренеровочному датасету
+    y_pred1 = own_net.forward(x_train)  # считаем предсказания по тренеровочному датасету
 
-    loss_value = loss_F(y_pred, x_train)  # f(y0,x0)=(...) = W0
+    loss_value = loss_F(y_pred1, y_train)  # f(W0)=(...), W0=[prediction,truth]
 
-    loss_value.backward()  # (...)'=f'(y0,x0)
+    loss_value.backward()  # (...)'=f'(W0)
 
-    grad_stepper.step()  # шаг градиентного спуска:  W1=W0-grad[f(y0,x0)]*C
+    grad_stepper.step()  # шаг градиентного спуска:  W1=W0-grad[f(W0)]*C
 
 predict(own_net, x_validation, y_validation)
