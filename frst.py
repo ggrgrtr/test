@@ -46,7 +46,7 @@ plt.show()
 
 
 class Net(q.nn.Module):  # родительский класс q.nn.Module
-    def __init__(self, n_of_hidden_neurons):
+    def __init__(self, n_of_hidden_neurons): # наследуем с передачей весов н.с. [w1 w2 ... wn]
         super(Net,self).__init__() # + инициализация род. класса
         self.fullc_layer1=q.nn.Linear(1,n_of_hidden_neurons) # вход -> слой
         self.func_of_activation = q.nn.Sigmoid()
@@ -71,3 +71,5 @@ def predict(net,x,y):
 own_net=Net(50) # задаем сеть, в каждом слое 50 нейронов
 
 predict(own_net,x_validation,y_validation)
+
+grad_stepper=q.optim.Adam(Net.parameters(),lr=0.01) # Net.parameters() ~ [w1 w2 ... wn]

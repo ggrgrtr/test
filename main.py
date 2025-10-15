@@ -52,3 +52,21 @@ print('градиентный спуск (1):\n',x)
 #     print(" --> Done")
 # except:
 #     print("\nno such file")
+
+w = q.tensor([8., 8.],requires_grad=True)
+
+optimizer = q.optim.SGD([w], lr=0.001)
+
+def parabola(x):
+  return 10*(x**2).sum()
+
+def grad_step(F,tensor1):
+  F_res = F(tensor1)
+  F_res.backward()
+  # tensor1.data -= 0.001*tensor1.grad   --- equals
+  # tensor1.grad.zero_()
+  optimizer.step()
+  optimizer.zero_grad()
+
+for i in range(500):
+  grad_step(parabola, w)
