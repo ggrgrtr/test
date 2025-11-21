@@ -47,7 +47,8 @@ def draw(string):
 
         for result in cursor:
             print(*result)
-        print()
+    print("-"*10, 'drawed',"-"*10)
+    print()
 
 
 def q(table,rowid=False):
@@ -59,6 +60,9 @@ def q(table,rowid=False):
             cursor.execute(f"SELECT * FROM {table}")
         print()
         print("q()-------------------------------------")
+        print(table.upper(),':\n',sep='')
+        column_names = [description[0] for description in cursor.description]
+        print(*column_names)
         for result in cursor:
             print(result)
         print("q()-------------------------------------")
@@ -85,7 +89,8 @@ with sq.connect("saber.db") as connection:
 
     # для получения результатов отбора SQL-запроса
     # result = cur.fetchall()
-    # result будет ссылаться на упорядоченный список, состоящий из кортежей с данными таблицы
+    # result будет ссылаться на упорядоченный список,
+    # состоящий из кортежей с данными таблицы
     # print(*result,sep='\n')
 
     # ля экономии памяти
@@ -134,9 +139,15 @@ q('users')
 f("UPDATE users SET score = score+333, old = 98 WHERE old > 30")
 q('users')
 
+
+# add to table games
 f("INSERT INTO games VALUES(1, 100, 300)")
 f("INSERT INTO games VALUES(2, 30, 17)")
 f("INSERT INTO games VALUES(3, 90, 70)")
+f("INSERT INTO games VALUES(2, 203, 170)")
+f("INSERT INTO games VALUES(2, 10, 40)")
+f("INSERT INTO games VALUES(4, 104, 11)")
+f("INSERT INTO games VALUES(1, 99, 34)")
 q('games')
 
 print("считаем все user_id = 1:")
@@ -155,4 +166,66 @@ draw("SELECT score FROM games WHERE rowid=2")
 print("sum of all scores:")
 draw("SELECT sum(score) as sum FROM games")
 
-q('games',True)
+print("группировка по id и суммирование очков games:")
+# группирует записи по указанному столбцу
+# сортируем сумму по убыванию
+draw("""
+SELECT user_id, sum(score) as sum FROM games 
+WHERE time>50
+GROUP BY user_id
+ORDER BY sum DESC
+""")
+# LIMIT 1 -- ограничение отбираемых записей
+
+q('games',False)
+
+q('users',True)
+
+
+draw(
+    """
+    SELECT name, sex, games.score FROM games 
+    JOIN users ON games.user_id = users.rowid
+    """
+)
+
+print("объединение сыгранных игр и пользователей")
+draw("""
+select name, sex, games.score from games, users
+""")
+print()
+
+print("таблица games с дополнениями из users:")
+draw("""
+SELECT name, sex, games.score FROM games
+LEFT JOIN users ON games.user_id = users.rowid
+""")
+
+print('best players for all rounds:')
+draw(
+    """
+    select name, sex, sum(games.score) as score FROM games
+    join users on games.user_id = users.rowid
+    group by user_id
+    order by score desc 
+    """
+)
+
+
+print("concotinuation:")
+# оператор UNION оставляет только уникальные значения записей
+draw(
+    """
+    SELECT time, user_id, games.score FROM games
+    UNION SELECT name, sex, old FROM users    
+    """
+)
+
+print("renamed concotinuation with column 'tbl':")
+draw(
+    """
+SELECT games.score, 'table 1' as tbl FROM games
+UNION SELECT old, 'table 2' FROM users
+order by games.score desc 
+    """
+)
