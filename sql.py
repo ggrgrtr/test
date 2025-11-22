@@ -1,22 +1,5 @@
 import sqlite3 as sq
 
-connection = sq.connect('saber.db')
-cursor = connection.cursor()
-# передает SQL запрос
-# NOT NULL -- обязан содержать данные
-cursor.execute("""CREATE TABLE IF NOT EXISTS users (
-    name TEXT NOT NULL,
-    sex INTEGER NOT NULL DEFAULT 1,
-    old INTEGER,
-    score INTEGER
-)""")
-cursor.execute("""CREATE TABLE IF NOT EXISTS games (
-    user_id INTEGER NOT NULL,
-    score INTEGER NOT NULL DEFAULT 0,
-    time INTEGER
-)""")
-connection.close()
-
 
 # INSERT INTO <table_name> VALUES (<value1>, <value2>, …)
 
@@ -101,16 +84,33 @@ with sq.connect("saber.db") as connection:
     # fetchmany(size) # -– возвращает число записей не более size
 
     # delete table
-    # cur.execute("DROP TABLE users")
     cur.execute("DELETE FROM users")
     cur.execute("DELETE FROM games")
+    cur.execute("DROP TABLE if exists users")
+    cur.execute("DROP TABLE if exists games")
     # cur.execute("DROP TABLE games")
 
+
+connection = sq.connect('saber.db')
+cursor = connection.cursor()
+# передает SQL запрос
+# NOT NULL -- обязан содержать данные
+cursor.execute("""CREATE TABLE IF NOT EXISTS users (
+    name TEXT NOT NULL,
+    sex INTEGER NOT NULL DEFAULT 1,
+    old INTEGER,
+    score INTEGER
+)""")
+cursor.execute("""CREATE TABLE IF NOT EXISTS games (
+    user_id INTEGER NOT NULL,
+    score INTEGER NOT NULL DEFAULT 0,
+    time INTEGER
+)""")
+connection.close()
 
 # -------------------
 # UPDATE имя_таблицы SET имя_столбца = новое_значение WHERE условие
 # -------------------
-
 
 add_person("John", 2, 35, 35)
 add_person('bro',1,20,400)
@@ -119,7 +119,6 @@ add_person('Misha',1,22,80)
 add_person('Egor',1,20,900)
 f("INSERT INTO users VALUES('Даша', 2, 24, 1200)")
 q('users',True)
-
 
 print("deleted №2, №5:")
 # DELETE FROM имя_таблицы WHERE условие
@@ -138,7 +137,6 @@ q('users')
 
 f("UPDATE users SET score = score+333, old = 98 WHERE old > 30")
 q('users')
-
 
 # add to table games
 f("INSERT INTO games VALUES(1, 100, 300)")
@@ -211,7 +209,6 @@ draw(
     """
 )
 
-
 print("concotinuation:")
 # оператор UNION оставляет только уникальные значения записей
 draw(
@@ -229,3 +226,9 @@ UNION SELECT old, 'table 2' FROM users
 order by games.score desc 
     """
 )
+
+# добавление нового столбца
+f("alter table users add column lastname TEXT")
+q('users')
+f("insert into users values('Egor', 1,30,4000, 'Mishuchkov')")
+q('users')
